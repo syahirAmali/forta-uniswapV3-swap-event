@@ -31,17 +31,16 @@ const computeAddress = (factoryAddress: string, [token0, token1, fee]: any, init
   };
   const salt = uniswapSalt(saltInput);
 
-  const returnedCreate2Address = getCreate2Address(factoryAddress, salt, initCode).toLowerCase()
+  const returnedCreate2Address = getCreate2Address(factoryAddress, salt, initCode).toLowerCase();
 
   return returnedCreate2Address;
 };
 
-
 const getTokens = async (poolAddress: string, provider: providers.Provider) => {
-  const tokenFetcher: TokenFetcher = new TokenFetcher(poolAddress, provider)
+  const tokenFetcher: TokenFetcher = new TokenFetcher(poolAddress, provider);
 
   const tokenInfo = await tokenFetcher.getPoolInfo();
-  
+
   return [tokenInfo.token0, tokenInfo.token1, tokenInfo.fee] as const;
 };
 
@@ -57,9 +56,4 @@ const BOT_INPUTS: provideInputType = {
   initCode: UNI_INIT_CODE,
 };
 
-export {
-  computeAddress,
-  getTokens,
-  provideInputType,
-  BOT_INPUTS,
-};
+export { computeAddress, getTokens, provideInputType, BOT_INPUTS };

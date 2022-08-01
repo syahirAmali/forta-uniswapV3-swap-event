@@ -24,7 +24,7 @@ export default class TokenFetcher {
     this.pool = new ethers.Contract(poolAddress, UNI_POOL_ABI, this.provider);
   }
 
-  public async getPoolInfo(): Promise<poolInfoType>{
+  public async getPoolInfo(): Promise<poolInfoType> {
     const key: string = this.poolAddress;
     if (this.cache.has(key)) return this.cache.get(key) as Promise<poolInfoType>;
 
@@ -32,22 +32,22 @@ export default class TokenFetcher {
     let token1: string;
     let fee: number;
 
-    try{
+    try {
       token0 = await this.pool.token0();
       token1 = await this.pool.token1();
       fee = await this.pool.fee();
-    }catch{
+    } catch {
       throw new Error("Invalid Pool");
     }
 
     const poolInput: poolInfoType = {
       token0: token0,
       token1: token1,
-      fee: fee
-    }
+      fee: fee,
+    };
 
     this.cache.set(key, poolInput);
-    
+
     return this.cache.get(key) as any;
   }
 }

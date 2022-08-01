@@ -1,4 +1,11 @@
-import { FindingType, FindingSeverity, Finding, HandleTransaction, TransactionEvent, getEthersProvider } from "forta-agent";
+import {
+  FindingType,
+  FindingSeverity,
+  Finding,
+  HandleTransaction,
+  TransactionEvent,
+  getEthersProvider,
+} from "forta-agent";
 import { BOT_INPUTS, provideInputType } from "./utils";
 import { TestTransactionEvent, createAddress } from "forta-agent-tools/lib/tests";
 import { provideHandleTransaction } from "./agent";
@@ -121,7 +128,9 @@ describe("UniswapV3 Swap Event Test Suite", () => {
       1234,
       1234,
     ]);
-    txEvent = new TestTransactionEvent().addAnonymousEventLog(MOCK_CONTRACT_POOL, log.data, ...log.topics).addAnonymousEventLog(MOCK_CONTRACT_POOL, log2.data, ...log2.topics);
+    txEvent = new TestTransactionEvent()
+      .addAnonymousEventLog(MOCK_CONTRACT_POOL, log.data, ...log.topics)
+      .addAnonymousEventLog(MOCK_CONTRACT_POOL, log2.data, ...log2.topics);
     findings = await handleTransaction(txEvent);
 
     const trxFindings: findingType = {

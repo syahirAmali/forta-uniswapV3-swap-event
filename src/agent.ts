@@ -1,8 +1,18 @@
-import { Finding, HandleTransaction, TransactionEvent, FindingSeverity, FindingType, getEthersProvider } from "forta-agent";
+import {
+  Finding,
+  HandleTransaction,
+  TransactionEvent,
+  FindingSeverity,
+  FindingType,
+  getEthersProvider,
+} from "forta-agent";
 import { computeAddress, getTokens, provideInputType, BOT_INPUTS } from "./utils";
 import { providers } from "ethers";
 
-export function provideHandleTransaction(botHandlerInputs: provideInputType, provider: providers.Provider): HandleTransaction {
+export function provideHandleTransaction(
+  botHandlerInputs: provideInputType,
+  provider: providers.Provider
+): HandleTransaction {
   return async (txEvent: TransactionEvent): Promise<Finding[]> => {
     const findings: Finding[] = [];
 
