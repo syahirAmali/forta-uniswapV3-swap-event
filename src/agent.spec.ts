@@ -1,10 +1,10 @@
-import { FindingType, FindingSeverity, Finding, HandleTransaction, TransactionEvent } from "forta-agent";
+import { FindingType, FindingSeverity, Finding, HandleTransaction, TransactionEvent, getEthersProvider } from "forta-agent";
 import { BOT_INPUTS, provideInputType } from "./utils";
 import { TestTransactionEvent, createAddress } from "forta-agent-tools/lib/tests";
 import { provideHandleTransaction } from "./agent";
 import { Interface } from "ethers/lib/utils";
 
-const EVENT_INTERFACE = new Interface(["event randomEvent(address to, address from)"]);
+const INCORRECT_EVENT = new Interface(["event incorrectEvent(address to, address from)"]);
 const EVENT_SWAP_INTERFACE = new Interface([BOT_INPUTS.swapEvent]);
 const EVENT_SWAP_INTERFACE_OTHERS = new Interface([
   "event swap(uint256 amount0Out, uint256 amount1Out, address to, bytes data)",
@@ -30,29 +30,19 @@ type findingType = {
   amount1: number;
 };
 
-const findings: findingType = {
-  poolAddress: createAddress("0x1a"),
-  token0: createAddress("0x2b"),
-  token1: createAddress("0x3c"),
-  fee: 100,
-  sender: createAddress("0x4d"),
-  amount0: -100,
-  amount1: 200,
-};
-
 const createFinding = (findings: findingType): Finding => {
   return Finding.fromObject({
-    name: "UniswapV3 Swap Event Emit",
+    name: "UniswapV3 Swap Event Emission",
     description: `UniswapV3 Swap event emit detected for pool contract at: ${findings.poolAddress}`,
     alertId: "UNISWAP-SWAP-1",
     severity: FindingSeverity.Info,
     type: FindingType.Info,
     protocol: "Uniswap",
     metadata: {
-      "pool address": findings.poolAddress,
-      "token0 address": findings.token0,
-      "token1 address": findings.token1,
-      "pool fee": findings.fee.toString(),
+      pool: findings.poolAddress,
+      token0: findings.token0,
+      token1: findings.token1,
+      fee: findings.fee.toString(),
       sender: findings.sender,
       amount0: findings.amount0.toString(),
       amount1: findings.amount1.toString(),
@@ -60,16 +50,16 @@ const createFinding = (findings: findingType): Finding => {
   });
 };
 
-describe("uniswapV3 swap event", () => {
+describe("UniswapV3 Swap Event Test Suite", () => {
   let handleTransaction: HandleTransaction;
   let txEvent: TransactionEvent;
   let findings: Finding[];
 
   beforeAll(() => {
-    handleTransaction = provideHandleTransaction(botInputs);
+    handleTransaction = provideHandleTransaction(botInputs, getEthersProvider());
   });
 
-  it("returns empty findings if there are no uniswap swaps", async () => {
+  it("should return no findings on empty transaction", async () => {
     txEvent = new TestTransactionEvent();
     findings = await handleTransaction(txEvent);
 
@@ -77,7 +67,7 @@ describe("uniswapV3 swap event", () => {
   });
 
   it("should return no findings if other events are made", async () => {
-    const log = EVENT_INTERFACE.encodeEventLog(EVENT_INTERFACE.getEvent("randomEvent"), [
+    const log = INCORRECT_EVENT.encodeEventLog(INCORRECT_EVENT.getEvent("incorrectEvent"), [
       createAddress("0x001"),
       createAddress("0x002"),
     ]);
@@ -112,7 +102,41 @@ describe("uniswapV3 swap event", () => {
     expect(findings).toStrictEqual([createFinding(trxFindings)]);
   });
 
-  it("returns no finding if swap isnt from uniswapV3", async () => {
+  it("should detect multiple swap events", async () => {
+    const log = EVENT_SWAP_INTERFACE.encodeEventLog(EVENT_SWAP_INTERFACE.getEvent("Swap"), [
+      createAddress("0x001"),
+      createAddress("0x002"),
+      1,
+      2,
+      123,
+      1234,
+      1234,
+    ]);
+    const log2 = EVENT_SWAP_INTERFACE.encodeEventLog(EVENT_SWAP_INTERFACE.getEvent("Swap"), [
+      createAddress("0x001"),
+      createAddress("0x002"),
+      1,
+      2,
+      123,
+      1234,
+      1234,
+    ]);
+    txEvent = new TestTransactionEvent().addAnonymousEventLog(MOCK_CONTRACT_POOL, log.data, ...log.topics).addAnonymousEventLog(MOCK_CONTRACT_POOL, log2.data, ...log2.topics);
+    findings = await handleTransaction(txEvent);
+
+    const trxFindings: findingType = {
+      poolAddress: MOCK_CONTRACT_POOL.toLowerCase(),
+      token0: MOCK_CONTRACT_POOL_TOKEN0,
+      token1: MOCK_CONTRACT_POOL_TOKEN1,
+      fee: 500,
+      sender: createAddress("0x001"),
+      amount0: 1,
+      amount1: 2,
+    };
+    expect(findings).toStrictEqual([createFinding(trxFindings), createFinding(trxFindings)]);
+  });
+
+  it("should not detect a swap event from a non uniswap pool contract", async () => {
     const log = EVENT_SWAP_INTERFACE_OTHERS.encodeEventLog(EVENT_SWAP_INTERFACE_OTHERS.getEvent("swap"), [
       1,
       2,

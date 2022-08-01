@@ -2,7 +2,7 @@
 
 ## Description
 
-This bot detects a uniswapV3 swap event
+This bot detects a UniswapV3 `Swap` event emissions from the UniswapV3 protocol.
 
 ## Supported Chains
 
@@ -27,4 +27,6 @@ This bot detects a uniswapV3 swap event
 
 The agent behaviour can be verified with the following transactions:
 
-- 0xe4c829982fd640503b8699f225359ff421fc21e0b69530428706e9cd69af9c50 (Multiple uniswapV3 Swap Function)
+Multiple uniswapV3 `Swap` Event Emissions
+
+- [0xe4c829982fd640503b8699f225359ff421fc21e0b69530428706e9cd69af9c50](https://etherscan.io/tx/0xe4c829982fd640503b8699f225359ff421fc21e0b69530428706e9cd69af9c50) 

@@ -1,7 +1,8 @@
 {
-  "name": "forta-agent-starter",
+  "name": "forta-uniswapV3-swap-event-emissions",
   "version": "0.0.1",
-  "description": "Forta Agent Typescript starter project",
+  "description": "Forta Bot that detects the uniswapv3 swap event emissions that occurs from the uniswapV3 protocol",
+  "repository": "https://github.com/syahirAmali/forta-uniswapV3-swap-event",
   "chainIds": [
     1
   ],
@@ -26,11 +27,12 @@
   },
   "dependencies": {
     "forta-agent": "^0.1.8",
-    "forta-agent-tools": "^2.3.1"
+    "lru-cache": "^7.13.1"
   },
   "devDependencies": {
     "@types/jest": "^27.0.1",
     "@types/nodemon": "^1.19.0",
+    "forta-agent-tools": "^2.3.1",
     "jest": "^27.0.6",
     "nodemon": "^2.0.8",
     "prettier": "^2.7.1",
